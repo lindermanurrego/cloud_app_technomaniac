@@ -18,5 +18,6 @@ define view entity ZC_BOOKSUPP_TE_M_L as projection on ZI_BOOKSUPP_TE_M_L
     _Booking: redirected to parent ZC_BOOKING_TEC_M_L,
     _Supplement,
     _SupplementText,
-    _Travel
-}
+    _Travel:  redirected to ZC_TRAVEL_TECH_M_L
+ //   _Travel
+ }

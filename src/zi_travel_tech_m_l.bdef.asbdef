@@ -1,7 +1,8 @@
-managed implementation in class zbp_i_travel_tech_m_l unique;
+managed;  //;implementation in class zbp_i_travel_tech_m_l unique;
 strict ( 2 );
 
 define behavior for ZI_TRAVEL_TECH_M_L //alias <alias_name>
+implementation in class zcl_bp_travel_tech_m unique
 persistent table ztravel_tech_m_l
 lock master
 authorization master ( instance )

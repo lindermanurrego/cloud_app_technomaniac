@@ -17,6 +17,8 @@ define view entity ZI_BOOKSUPP_TE_M_L as select from zbooksupp_te_m_l
       @Semantics.amount.currencyCode: 'CurrencyCode'
       price                 as Price,
       currency_code         as CurrencyCode,
+      //the persistent field last_changed_at plays a special role as a field ETag.
+      @Semantics.systemDateTime.localInstanceLastChangedAt: true            
       last_changed_at       as LastChangedAt,
       _Travel,
       _Booking,

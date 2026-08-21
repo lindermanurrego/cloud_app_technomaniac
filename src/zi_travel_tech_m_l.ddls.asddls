@@ -26,6 +26,8 @@ define root view entity ZI_TRAVEL_TECH_M_L
       created_by      as CreatedBy,
       created_at      as CreatedAt,
       last_changed_by as LastChangedBy,
+      //the persistent field last_changed_at plays a special role as a field ETag.
+      @Semantics.systemDateTime.localInstanceLastChangedAt: true      
       last_changed_at as LastChangedAt,
       _Booking,
       _Agency,

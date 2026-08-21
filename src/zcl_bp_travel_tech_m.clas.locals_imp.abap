@@ -6,6 +6,8 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L DEFINITION INHERITING FROM cl_abap_behavior_handler
 
     METHODS get_global_authorizations FOR GLOBAL AUTHORIZATION
       IMPORTING REQUEST requested_authorizations FOR zi_travel_tech_m_l RESULT result.
+    METHODS earlynumbering_create FOR NUMBERING
+      entities FOR CREATE zi_travel_tech_m_l.
 
 ENDCLASS.
 
@@ -15,6 +17,9 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD get_global_authorizations.
+  ENDMETHOD.
+
+  METHOD earlynumbering_create.
   ENDMETHOD.
 
 ENDCLASS.

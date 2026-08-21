@@ -2,6 +2,7 @@ projection;
 strict ( 2 );
 
 define behavior for ZC_TRAVEL_TECH_M_L //alias <alias_name>
+use etag
 {
   use create;
   use update;
@@ -11,6 +12,7 @@ define behavior for ZC_TRAVEL_TECH_M_L //alias <alias_name>
 }
 
 define behavior for ZC_BOOKING_TEC_M_L //alias <alias_name>
+use etag
 {
   use update;
   use delete;
@@ -20,6 +22,7 @@ define behavior for ZC_BOOKING_TEC_M_L //alias <alias_name>
 }
 
 define behavior for ZC_BOOKSUPP_TE_M_L //alias <alias_name>
+use etag
 {
   use update;
   use delete;

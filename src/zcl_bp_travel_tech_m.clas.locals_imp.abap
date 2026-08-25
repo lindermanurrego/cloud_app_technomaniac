@@ -27,7 +27,7 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L IMPLEMENTATION.
     TRY.
         cl_numberrange_runtime=>number_get(
           EXPORTING
-            nr_range_nr           =  '10'
+            nr_range_nr           =  '01'
             object                    = '/DMO/TRV_M'
             quantity                 = CONV #( lines(  lt_entities ) )
           IMPORTING
@@ -35,20 +35,27 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L IMPLEMENTATION.
             returncode            =  DATA(lv_code)
             returned_quantity = DATA(lv_qty)
         ).
+
       CATCH cx_nr_object_not_found.
-      CATCH cx_number_ranges.
+      CATCH cx_number_ranges INTO DATA(lo_error).
+        LOOP AT lt_entities INTO DATA(ls_entities).
+          APPEND VALUE  #(   %cid = ls_entities-%cid
+                                             TravelId = ls_entities-%key
+                                             ) TO failed-zi_travel_tech_m_l.
+          APPEND VALUE  #(   %cid = ls_entities-%cid
+                                             TravelId = ls_entities-%key
+                                             %msg = lo_error
+                                             ) TO reported-zi_travel_tech_m_l.
+        ENDLOOP.
+        EXIT.
     ENDTRY..
 
     ASSERT lv_qty =  lines(  lt_entities ) .
 
     DATA: lti_travel_tech_m_l TYPE TABLE FOR MAPPED EARLY  zi_travel_tech_m_l,
           ls_travel_tech_m_l  LIKE LINE OF lti_travel_tech_m_l.
-
-
     DATA(lv_current_number) = lv_latest_num - lv_qty .
-
-    LOOP AT lt_entities INTO DATA(ls_entities).
-
+    LOOP AT lt_entities INTO ls_entities.
       lv_current_number = lv_current_number + 1.
       ls_travel_tech_m_l = VALUE  #(   %cid = ls_entities-%cid
                                                            TravelId = lv_current_number  ).

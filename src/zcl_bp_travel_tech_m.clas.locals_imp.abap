@@ -71,38 +71,47 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD earlynumbering_create_bookings.
-   DATA lv_max_booking TYPE /dmo/booking_id.
+    DATA lv_max_booking TYPE /dmo/booking_id.
 *..Lee de la tabla zi_travel_tech_m_l las entidades que llegaron al metodo
 *trayendo la refencia del Booking
-     READ ENTITIES OF zi_travel_tech_m_l IN LOCAL MODE
-      ENTITY zi_travel_tech_m_l BY \_Booking
-        FROM CORRESPONDING #(  entities )
-        LINK DATA(lt_link_data).
+    READ ENTITIES OF zi_travel_tech_m_l IN LOCAL MODE
+     ENTITY zi_travel_tech_m_l BY \_Booking
+       FROM CORRESPONDING #(  entities )
+       LINK DATA(lt_link_data).
 
 
-        loop at entities assigning FIELD-SYMBOL(<fs_group>)
-                                                         GROUP BY <fs_group>-TravelId.
+    LOOP AT entities ASSIGNING FIELD-SYMBOL(<fs_group>)
+                                                     GROUP BY <fs_group>-TravelId.
 *..Se busca el maximo pero que se encuentra en la tabla
-            lv_max_booking  = REDUCE #(  INIT  lv_max  = CONV  /dmo/booking_id(  '0'  )
-                                                                     for ls_link in lt_link_data USING KEY entity
-                                                                     WHERE (  source-TravelId = <fs_group>-TravelId  )
-                                                                     NEXT lv_max = COND /dmo/booking_id(  WHEN  lv_max <  ls_link-target-BookingId
-                                                                                                                                            THEN ls_link-target-BookingId
-                                                                                                                                            ELSE  lv_max ) ).
+      lv_max_booking  = REDUCE #(  INIT  lv_max  = CONV  /dmo/booking_id(  '0'  )
+                                                               FOR ls_link IN lt_link_data USING KEY entity
+                                                               WHERE (  source-TravelId = <fs_group>-TravelId  )
+                                                               NEXT lv_max = COND /dmo/booking_id(  WHEN  lv_max <  ls_link-target-BookingId
+                                                                                                                                      THEN ls_link-target-BookingId
+                                                                                                                                      ELSE  lv_max ) ).
 *..Buscar el maximo pero en la entidades y se compara contra el maximo booking encontrado anteriormente
 *..Al final  lv_max_booking tiene le maximo booking y se busco en la tabla z y en las entidades
-            lv_max_booking  = REDUCE #(  INIT  lv_max  = lv_max_booking
-                                                                     for ls_entity  in entities  USING KEY entity
-                                                                     WHERE (  TravelId = <fs_group>-TravelId  )
-                                                                     FOR ls_booking IN ls_entity-%target
-                                                                     NEXT lv_max = COND /dmo/booking_id(  WHEN  lv_max <  ls_booking-BookingId
-                                                                                                                                            THEN ls_booking-BookingId
-                                                                                                                                            ELSE  lv_max ) ).
+      lv_max_booking  = REDUCE #(  INIT  lv_max  = lv_max_booking
+                                                               FOR ls_entity  IN entities  USING KEY entity
+                                                               WHERE (  TravelId = <fs_group>-TravelId  )
+                                                               FOR ls_booking IN ls_entity-%target
+                                                               NEXT lv_max = COND /dmo/booking_id(  WHEN  lv_max <  ls_booking-BookingId
+                                                                                                                                      THEN ls_booking-BookingId
+                                                                                                                                      ELSE  lv_max ) ).
 
+      LOOP AT entities ASSIGNING FIELD-SYMBOL(<ls_entities>)
+                                                  USING KEY entity WHERE  TravelId = <fs_group>-TravelId.
 
-        endloop.
-
-
+        LOOP AT <ls_entities>-%target ASSIGNING FIELD-SYMBOL(<fs_booking>).
+          IF <fs_booking>-BookingId IS INITIAL.
+            lv_max_booking += 10.
+            APPEND CORRESPONDING #( <fs_booking> ) TO  mapped-zi_booking_tec_m_l
+                           ASSIGNING FIELD-SYMBOL(<ls_new_map_book>).
+            <ls_new_map_book>-BookingId = lv_max_booking.
+          ENDIF.
+        ENDLOOP.
+      ENDLOOP.
+    ENDLOOP.
   ENDMETHOD.
 
 ENDCLASS.

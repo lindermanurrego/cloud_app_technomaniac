@@ -42,10 +42,11 @@ persistent table zbooking_tec_lul
 lock dependent by _Travel
 authorization dependent by _Travel
 etag master LastChangedAt
+early numbering
 {
   update;
   delete;
-  field ( readonly ) TravelId;
+  field ( readonly ) TravelId,BookingId ;
   association _Travel;
   association _Bookingsuppl { create; }
 
@@ -73,10 +74,11 @@ persistent table zbooksupp_te_m_l
 lock dependent by _Travel
 authorization dependent by _Travel
 etag master LastChangedAt
+early numbering
 {
   update;
   delete;
-  field ( readonly ) TravelId, BookingId;
+  field ( readonly ) TravelId, BookingId,BookingSupplementId;
   association _Travel;
   association _Booking;
    mapping for zbooksupp_te_m_l

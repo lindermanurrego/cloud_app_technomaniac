@@ -6,6 +6,10 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L DEFINITION INHERITING FROM cl_abap_behavior_handler
 
     METHODS get_global_authorizations FOR GLOBAL AUTHORIZATION
       IMPORTING REQUEST requested_authorizations FOR zi_travel_tech_m_l RESULT result.
+
+    METHODS earlynumbering_create_bookings FOR NUMBERING
+       entities FOR CREATE zi_travel_tech_m_l\_Booking.
+
     METHODS earlynumbering_create FOR NUMBERING
        entities FOR CREATE zi_travel_tech_m_l.
 
@@ -62,6 +66,30 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L IMPLEMENTATION.
       APPEND ls_travel_tech_m_l TO mapped-zi_travel_tech_m_l.
     ENDLOOP.
 
+
+
+  ENDMETHOD.
+
+  METHOD earlynumbering_create_bookings.
+   DATA lv_max_booking TYPE /dmo/booking_id.
+*..Lee de la tabla zi_travel_tech_m_l las entidades que llegaron al metodo
+*trayendo la refencia del Booking
+     READ ENTITIES OF zi_travel_tech_m_l IN LOCAL MODE
+      ENTITY zi_travel_tech_m_l BY \_Booking
+        FROM CORRESPONDING #(  entities )
+        LINK DATA(lt_link_data).
+
+
+        loop at entities assigning FIELD-SYMBOL(<fs_group>)
+                                                         GROUP BY <fs_group>-TravelId.
+
+            lv_max_booking  = REDUCE #(  INIT  lv_max  = CONV  /dmo/booking_id(  '0'  )
+                                                                     for ls_link in lt_link_data USING KEY entity
+                                                                     WHERE (  source-TravelId = <fs_group>-TravelId  )
+                                                                     NEXT lv_max = COND /dmo/booking_id(  WHEN  lv_max <  ls_link-target-BookingId
+                                                                                                                                            THEN ls_link-target-BookingId
+                                                                                                                                            ELSE  lv_max ) ).
+        endloop.
 
 
   ENDMETHOD.

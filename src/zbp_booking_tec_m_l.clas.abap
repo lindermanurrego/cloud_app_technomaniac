@@ -1,0 +1,5 @@
+CLASS zbp_booking_tec_m_l DEFINITION PUBLIC ABSTRACT FINAL FOR BEHAVIOR OF zi_travel_tech_m_l.
+ENDCLASS.
+
+CLASS zbp_booking_tec_m_l IMPLEMENTATION.
+ENDCLASS.

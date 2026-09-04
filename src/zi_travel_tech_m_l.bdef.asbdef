@@ -15,6 +15,13 @@ early numbering
   delete;
   field ( readonly ) TravelId;
   association _Booking { create; }
+ //Acciones de instancia
+  action accepTravel result[1] $self;
+  action rejectTravel result[1] $self;
+ //Accion que crea nuevos objetos
+ factory action copyTravel [1];
+ //Accion interna la cual es disparada desde un objeto de negocio
+ internal action recalcTotProce;
 
   mapping for  ztravel_tech_m_l
     {

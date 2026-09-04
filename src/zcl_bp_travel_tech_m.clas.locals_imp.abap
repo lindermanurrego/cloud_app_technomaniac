@@ -6,6 +6,17 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L DEFINITION INHERITING FROM cl_abap_behavior_handler
 
     METHODS get_global_authorizations FOR GLOBAL AUTHORIZATION
       IMPORTING REQUEST requested_authorizations FOR zi_travel_tech_m_l RESULT result.
+    METHODS acceptravel FOR MODIFY
+      keys FOR ACTION zi_travel_tech_m_l~acceptravel RESULT result.
+
+    METHODS copytravel FOR MODIFY
+      keys FOR ACTION zi_travel_tech_m_l~copytravel.
+
+    METHODS recalctotproce FOR MODIFY
+      keys FOR ACTION zi_travel_tech_m_l~recalctotproce.
+
+    METHODS rejecttravel FOR MODIFY
+      keys FOR ACTION zi_travel_tech_m_l~rejecttravel RESULT result.
 
     METHODS earlynumbering_create_bookings FOR NUMBERING
        entities FOR CREATE zi_travel_tech_m_l\_Booking.
@@ -112,6 +123,18 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L IMPLEMENTATION.
         ENDLOOP.
       ENDLOOP.
     ENDLOOP.
+  ENDMETHOD.
+
+  METHOD accepTravel.
+  ENDMETHOD.
+
+  METHOD copyTravel.
+  ENDMETHOD.
+
+  METHOD recalcTotProce.
+  ENDMETHOD.
+
+  METHOD rejectTravel.
   ENDMETHOD.
 
 ENDCLASS.

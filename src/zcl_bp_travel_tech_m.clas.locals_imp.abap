@@ -7,16 +7,16 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L DEFINITION INHERITING FROM cl_abap_behavior_handler
     METHODS get_global_authorizations FOR GLOBAL AUTHORIZATION
       IMPORTING REQUEST requested_authorizations FOR zi_travel_tech_m_l RESULT result.
     METHODS acceptravel FOR MODIFY
-      keys FOR ACTION zi_travel_tech_m_l~acceptravel RESULT result.
+       keys FOR ACTION zi_travel_tech_m_l~acceptravel RESULT result.
 
     METHODS copytravel FOR MODIFY
-      keys FOR ACTION zi_travel_tech_m_l~copytravel.
+       keys FOR ACTION zi_travel_tech_m_l~copytravel.
 
     METHODS recalctotproce FOR MODIFY
-      keys FOR ACTION zi_travel_tech_m_l~recalctotproce.
+       keys FOR ACTION zi_travel_tech_m_l~recalctotproce.
 
     METHODS rejecttravel FOR MODIFY
-      keys FOR ACTION zi_travel_tech_m_l~rejecttravel RESULT result.
+       keys FOR ACTION zi_travel_tech_m_l~rejecttravel RESULT result.
 
     METHODS earlynumbering_create_bookings FOR NUMBERING
        entities FOR CREATE zi_travel_tech_m_l\_Booking.
@@ -127,8 +127,31 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L IMPLEMENTATION.
 
   METHOD accepTravel.
   ENDMETHOD.
-
+*Este metodo realizara la copia de un viaje y todas las reservas y suplementos asociados
   METHOD copyTravel.
+*..Verificar que no hay cid vacios
+    READ TABLE keys ASSIGNING FIELD-SYMBOL(<ls_with_out_cid>) WITH KEY %cid = ''.
+    ASSERT <ls_with_out_cid> IS INITIAL.
+*..Leer todos los viajes que llegaron en la tabla keys
+*..Los datos quedan en la tabla lt_travel_r
+     READ ENTITIES OF ZI_TRAVEL_TECH_M_L  IN LOCAL MODE
+               ENTITY ZI_TRAVEL_TECH_M_L
+               ALL FIELDS WITH  CORRESPONDING #(  keys )
+               RESULT DATA(lt_travel_r)
+               FAILED DATA(lt_failed).
+*..Leer todas las reservas asocaidasa los viajes
+*..Los datos quedan en la tabla lt_booking_r
+     READ ENTITIES OF ZI_TRAVEL_TECH_M_L  IN LOCAL MODE
+               ENTITY ZI_TRAVEL_TECH_M_L BY \_Booking
+               ALL FIELDS WITH  CORRESPONDING #(  lt_travel_r )
+               RESULT DATA(lt_booking_r).
+*..Leer todos los suplementos asociados a las reservas
+*..Los datos quedan en la tabla lt_booksupp_r)
+     READ ENTITIES OF ZI_TRAVEL_TECH_M_L  IN LOCAL MODE
+               ENTITY ZI_BOOKING_TEC_M_L BY \_Bookingsuppl
+               ALL FIELDS WITH  CORRESPONDING #(  lt_booking_r )
+               RESULT DATA(lt_booksupp_r).
+
   ENDMETHOD.
 
   METHOD recalcTotProce.

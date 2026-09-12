@@ -129,29 +129,82 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L IMPLEMENTATION.
   ENDMETHOD.
 *Este metodo realizara la copia de un viaje y todas las reservas y suplementos asociados
   METHOD copyTravel.
+
+    DATA:it_travel        TYPE TABLE FOR CREATE zi_travel_tech_m_l,
+         it_booking_cba   TYPE TABLE FOR CREATE zI_TRAVEL_TECH_M_L\_Booking,
+         it_booksuppl_cba TYPE TABLE FOR CREATE zi_booking_tec_m_l\_Bookingsuppl.
+
 *..Verificar que no hay cid vacios
     READ TABLE keys ASSIGNING FIELD-SYMBOL(<ls_with_out_cid>) WITH KEY %cid = ''.
     ASSERT <ls_with_out_cid> IS INITIAL.
 *..Leer todos los viajes que llegaron en la tabla keys
 *..Los datos quedan en la tabla lt_travel_r
-     READ ENTITIES OF ZI_TRAVEL_TECH_M_L  IN LOCAL MODE
-               ENTITY ZI_TRAVEL_TECH_M_L
-               ALL FIELDS WITH  CORRESPONDING #(  keys )
-               RESULT DATA(lt_travel_r)
-               FAILED DATA(lt_failed).
+    READ ENTITIES OF zi_travel_tech_m_l  IN LOCAL MODE
+              ENTITY zi_travel_tech_m_l
+              ALL FIELDS WITH  CORRESPONDING #(  keys )
+              RESULT DATA(lt_travel_r)
+              FAILED DATA(lt_failed).
 *..Leer todas las reservas asocaidasa los viajes
 *..Los datos quedan en la tabla lt_booking_r
-     READ ENTITIES OF ZI_TRAVEL_TECH_M_L  IN LOCAL MODE
-               ENTITY ZI_TRAVEL_TECH_M_L BY \_Booking
-               ALL FIELDS WITH  CORRESPONDING #(  lt_travel_r )
-               RESULT DATA(lt_booking_r).
+    READ ENTITIES OF zi_travel_tech_m_l  IN LOCAL MODE
+              ENTITY zi_travel_tech_m_l BY \_Booking
+              ALL FIELDS WITH  CORRESPONDING #(  lt_travel_r )
+              RESULT DATA(lt_booking_r).
 *..Leer todos los suplementos asociados a las reservas
 *..Los datos quedan en la tabla lt_booksupp_r)
-     READ ENTITIES OF ZI_TRAVEL_TECH_M_L  IN LOCAL MODE
-               ENTITY ZI_BOOKING_TEC_M_L BY \_Bookingsuppl
-               ALL FIELDS WITH  CORRESPONDING #(  lt_booking_r )
-               RESULT DATA(lt_booksupp_r).
+    READ ENTITIES OF zi_travel_tech_m_l  IN LOCAL MODE
+              ENTITY zi_booking_tec_m_l BY \_Bookingsuppl
+              ALL FIELDS WITH  CORRESPONDING #(  lt_booking_r )
+              RESULT DATA(lt_booksupp_r).
 
+
+    LOOP AT lt_travel_r ASSIGNING FIELD-SYMBOL(<ls_travel_r>).
+*..Asignacion del viaje con varias lineas de codigo
+*         APPEND INITIAL LINE TO it_travel ASSIGNING FIELD-SYMBOL(<ls_travel>).
+*        <ls_travel>-%cid = keys[ key entity  TravelId = <ls_travel_r>-TravelId  ]-%cid.
+*        <ls_travel>-%data = CORRESPONDING #( <ls_travel_r> EXCEPT TravelId ).
+*..Asignacion del viaje usando una sola linea
+      APPEND VALUE #( %cid = keys[ KEY entity  TravelId = <ls_travel_r>-TravelId  ]-%cid
+                                      %data = CORRESPONDING #( <ls_travel_r> EXCEPT TravelId )
+           ) TO it_travel ASSIGNING FIELD-SYMBOL(<ls_travel>).
+*Se actualizan algunos campos
+      <ls_travel>-BeginDate = cl_abap_context_info=>get_system_date( ).
+      <ls_travel>-EndDate = cl_abap_context_info=>get_system_date( ) + 30.
+      <ls_travel>-OverallStatus = 'O'.
+
+*Asignacion de las reservas
+*Se asigna la referencia al travelid
+      APPEND VALUE #(  %cid_ref =  <ls_travel>-%cid )
+        TO it_booking_cba ASSIGNING FIELD-SYMBOL(<ls_booking>).
+*Se crea el %cid y se copian los datos
+      LOOP AT lt_booking_r ASSIGNING FIELD-SYMBOL(<ls_booking_r>)
+                                            WHERE TravelId =  <ls_travel_r>-TravelId .
+
+        APPEND VALUE #(  %cid = <ls_travel>-%cid && <ls_booking_r>-BookingId
+                                        %data = CORRESPONDING #( <ls_booking_r> EXCEPT   TravelID )
+
+          )  TO  <ls_booking>-%target ASSIGNING FIELD-SYMBOL(<ls_booking_n>).
+*El status se actualiza
+        <ls_booking_n>-BookingStatus = 'N'.
+
+
+*Se asigna la referencia al bookingId
+        APPEND VALUE #(  %cid_ref =  <ls_booking_n>-%cid )
+          TO it_booksuppl_cba ASSIGNING FIELD-SYMBOL(<ls_booksuppl_cba>).
+
+*Para cada reserva se asigna los supplementos.
+        LOOP AT lt_booksupp_r ASSIGNING FIELD-SYMBOL(<ls_booksupp_r>)
+                                                USING KEY entity
+                                              WHERE TravelId =  <ls_travel_r>-TravelId
+                                                    AND BookingId = <ls_booking_r>-BookingId.
+          APPEND VALUE #(  %cid = <ls_travel>-%cid && <ls_booking_r>-BookingId && <ls_booksupp_r>-BookingSupplementId
+                                          %data = CORRESPONDING #( <ls_booksupp_r> EXCEPT   TravelID BookingId )
+            )  TO  <ls_booksuppl_cba>-%target.
+
+        ENDLOOP.
+      ENDLOOP.
+
+    ENDLOOP.
   ENDMETHOD.
 
   METHOD recalcTotProce.

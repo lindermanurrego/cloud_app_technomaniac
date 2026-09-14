@@ -200,8 +200,27 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L IMPLEMENTATION.
 
         ENDLOOP.
       ENDLOOP.
-
     ENDLOOP.
+*..Crear la entidad haciendouso de MODIFY
+
+
+    MODIFY ENTITIES OF zi_travel_tech_m_l IN LOCAL MODE
+    ENTITY zi_travel_tech_m_l
+    CREATE FIELDS ( AgencyId CustomerId BeginDate EndDate BookingFee TotalPrice CurrencyCode OverallStatus Description )
+    WITH it_travel
+    ENTITY zi_travel_tech_m_l
+     CREATE BY \_Booking
+     FIELDS ( BookingId BookingDate CustomerId CarrierId ConnectionId FlightDate FlightPrice CurrencyCode BookingStatus )
+     WITH it_booking_cba
+    ENTITY zi_booking_tec_m_l
+     CREATE BY \_Bookingsuppl
+     FIELDS ( BookingSupplementId SupplementId Price CurrencyCode )
+     WITH it_booksuppl_cba
+     MAPPED DATA(it_mapped).
+
+    mapped-zi_travel_tech_m_l = it_mapped-zi_travel_tech_m_l.
+
+
   ENDMETHOD.
 
   METHOD recalcTotProce.

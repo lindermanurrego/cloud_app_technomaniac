@@ -182,12 +182,9 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L IMPLEMENTATION.
 
         APPEND VALUE #(  %cid = <ls_travel>-%cid && <ls_booking_r>-BookingId
                                         %data = CORRESPONDING #( <ls_booking_r> EXCEPT   TravelID )
-
           )  TO  <ls_booking>-%target ASSIGNING FIELD-SYMBOL(<ls_booking_n>).
 *El status se actualiza
         <ls_booking_n>-BookingStatus = 'N'.
-
-
 *Se asigna la referencia al bookingId
         APPEND VALUE #(  %cid_ref =  <ls_booking_n>-%cid )
           TO it_booksuppl_cba ASSIGNING FIELD-SYMBOL(<ls_booksuppl_cba>).

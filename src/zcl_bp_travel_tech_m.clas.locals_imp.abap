@@ -136,7 +136,7 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L IMPLEMENTATION.
 
 *..Verificar que no hay cid vacios
     READ TABLE keys ASSIGNING FIELD-SYMBOL(<ls_with_out_cid>) WITH KEY %cid = ''.
-    ASSERT <ls_with_out_cid> IS INITIAL.
+    ASSERT <ls_with_out_cid> IS ASSIGNED.
 *..Leer todos los viajes que llegaron en la tabla keys
 *..Los datos quedan en la tabla lt_travel_r
     READ ENTITIES OF zi_travel_tech_m_l  IN LOCAL MODE

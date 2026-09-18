@@ -114,15 +114,16 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L IMPLEMENTATION.
                                                   USING KEY entity WHERE  TravelId = <fs_group>-TravelId.
 
         LOOP AT <ls_entities>-%target ASSIGNING FIELD-SYMBOL(<fs_booking>).
+          APPEND CORRESPONDING #( <fs_booking> ) TO  mapped-zi_booking_tec_m_l
+                         ASSIGNING FIELD-SYMBOL(<ls_new_map_book>).
           IF <fs_booking>-BookingId IS INITIAL.
             lv_max_booking += 10.
-            APPEND CORRESPONDING #( <fs_booking> ) TO  mapped-zi_booking_tec_m_l
-                           ASSIGNING FIELD-SYMBOL(<ls_new_map_book>).
             <ls_new_map_book>-BookingId = lv_max_booking.
           ENDIF.
         ENDLOOP.
       ENDLOOP.
     ENDLOOP.
+
   ENDMETHOD.
 
   METHOD accepTravel.
@@ -218,7 +219,9 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L IMPLEMENTATION.
      WITH it_booksuppl_cba
      MAPPED DATA(it_mapped).
 
-    mapped-zi_travel_tech_m_l = it_mapped-zi_travel_tech_m_l.
+    mapped-zi_travel_tech_m_l           = it_mapped-zi_travel_tech_m_l.
+    mapped-zi_booking_tec_m_l   = it_mapped-zi_booking_tec_m_l .
+    mapped-zi_booksupp_te_m_l   = it_mapped-zi_booksupp_te_m_l.
 
 
   ENDMETHOD.

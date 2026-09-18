@@ -135,7 +135,7 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L IMPLEMENTATION.
          it_booksuppl_cba TYPE TABLE FOR CREATE zi_booking_tec_m_l\_Bookingsuppl.
 
 *..Verificar que no hay cid vacios
-    READ TABLE keys ASSIGNING FIELD-SYMBOL(<ls_with_out_cid>) WITH KEY %cid = ''.
+    READ TABLE keys ASSIGNING FIELD-SYMBOL(<ls_with_out_cid>) WITH KEY %cid = ' '.
     ASSERT <ls_with_out_cid> IS ASSIGNED.
 *..Leer todos los viajes que llegaron en la tabla keys
 *..Los datos quedan en la tabla lt_travel_r

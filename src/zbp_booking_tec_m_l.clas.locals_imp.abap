@@ -46,7 +46,7 @@ CLASS lhc_ZI_BOOKING_TEC_M_L IMPLEMENTATION.
       LOOP AT entities ASSIGNING FIELD-SYMBOL(<booking>) USING KEY entity WHERE TravelId  = <booking_group>-TravelId
                                                                             AND BookingId = <booking_group>-BookingId.
 
-        " Assign new booking_supplement-ids
+        " Assign new booking_supplement-ids.
         LOOP AT <booking>-%target ASSIGNING FIELD-SYMBOL(<booksuppl_wo_numbers>).
           APPEND CORRESPONDING #( <booksuppl_wo_numbers> ) TO mapped-zi_booksupp_te_m_l ASSIGNING FIELD-SYMBOL(<mapped_booksuppl>).
           IF <booksuppl_wo_numbers>-BookingSupplementId IS INITIAL.

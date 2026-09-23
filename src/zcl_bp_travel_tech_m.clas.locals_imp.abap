@@ -127,6 +127,21 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD accepTravel.
+
+    MODIFY ENTITIES OF zi_travel_tech_m_l IN LOCAL MODE
+      ENTITY zi_travel_tech_m_l
+       UPDATE FIELDS ( OverallStatus )
+       WITH VALUE #( FOR ls_keys IN keys ( %tky = ls_keys-%tky
+                                           OverallStatus = 'A' ) ).
+
+    READ ENTITIES OF zi_travel_tech_m_l IN LOCAL MODE
+    ENTITY zi_travel_tech_m_l
+    ALL FIELDS WITH CORRESPONDING #( keys )
+    RESULT DATA(lt_result).
+    .
+    result  = VALUE #( FOR ls_result IN lt_result ( %tky = ls_result-%tky
+                                                 %param  =  ls_result ) ).
+
   ENDMETHOD.
 *Este metodo realizara la copia de un viaje y todas las reservas y suplementos asociados
   METHOD copyTravel.

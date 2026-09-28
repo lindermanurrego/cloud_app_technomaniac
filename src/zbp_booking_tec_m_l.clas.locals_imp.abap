@@ -3,6 +3,8 @@ CLASS lhc_ZI_BOOKING_TEC_M_L DEFINITION INHERITING FROM cl_abap_behavior_handler
 
     METHODS earlynumbering_cba_Bookingsupp FOR NUMBERING
        entities FOR CREATE zi_booking_tec_m_l\_Bookingsuppl.
+    METHODS get_instance_features FOR INSTANCE FEATURES
+      keys REQUEST requested_features FOR ZI_BOOKING_TEC_M_L RESULT result.
 
 ENDCLASS.
 
@@ -57,6 +59,9 @@ CLASS lhc_ZI_BOOKING_TEC_M_L IMPLEMENTATION.
 
       ENDLOOP.
     ENDLOOP.
+  ENDMETHOD.
+
+  METHOD get_instance_features.
   ENDMETHOD.
 
 ENDCLASS.

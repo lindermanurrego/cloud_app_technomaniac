@@ -267,8 +267,30 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L IMPLEMENTATION.
 
 
   ENDMETHOD.
-
+*Implementacion de las caracteristicas : Habilita o deshabilita los botones de acuerdo al estado
   METHOD get_instance_features.
-  ENDMETHOD.
 
+    READ ENTITIES OF zi_travel_tech_m_l  IN LOCAL MODE
+                       ENTITY zi_travel_tech_m_l
+      FIELDS ( TravelId OverallStatus )
+   WITH CORRESPONDING  #(  keys )
+   RESULT DATA(lt_travel).
+
+    result = VALUE #(  for ls_travel in lt_travel
+                                   (  %tky = ls_travel-%tky
+                                      %features-%action-accepTravel = cond #(  WHEN ls_travel-OverallStatus = 'A'
+                                                                                                               THEN if_abap_behv=>fc-o-disabled
+                                                                                                               ELSE  if_abap_behv=>fc-o-enabled
+                                                                                                                  )
+                                         %features-%action-rejectTravel = cond #(  WHEN ls_travel-OverallStatus = 'X'
+                                                                                                               THEN if_abap_behv=>fc-o-disabled
+                                                                                                               ELSE  if_abap_behv=>fc-o-enabled
+                                                                                                                  )
+                                         %features-%assoc-_Booking      = cond #(  WHEN ls_travel-OverallStatus = 'X'
+                                                                                                               THEN if_abap_behv=>fc-o-disabled
+                                                                                                               ELSE  if_abap_behv=>fc-o-enabled
+                                                                                                                  )
+                                        )
+                               ).
+  ENDMETHOD.
 ENDCLASS.

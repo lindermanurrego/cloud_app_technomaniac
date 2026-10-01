@@ -19,6 +19,8 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L DEFINITION INHERITING FROM cl_abap_behavior_handler
        keys FOR ACTION zi_travel_tech_m_l~rejecttravel RESULT result.
     METHODS get_instance_features FOR INSTANCE FEATURES
       keys REQUEST requested_features FOR zi_travel_tech_m_l RESULT result.
+    METHODS validatecustomer FOR VALIDATE ON SAVE
+       keys FOR zi_travel_tech_m_l~validatecustomer.
 
     METHODS earlynumbering_create_bookings FOR NUMBERING
        entities FOR CREATE zi_travel_tech_m_l\_Booking.
@@ -276,21 +278,66 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L IMPLEMENTATION.
    WITH CORRESPONDING  #(  keys )
    RESULT DATA(lt_travel).
 
-    result = VALUE #(  for ls_travel in lt_travel
+    result = VALUE #(  FOR ls_travel IN lt_travel
                                    (  %tky = ls_travel-%tky
-                                      %features-%action-accepTravel = cond #(  WHEN ls_travel-OverallStatus = 'A'
+                                      %features-%action-accepTravel = COND #(  WHEN ls_travel-OverallStatus = 'A'
                                                                                                                THEN if_abap_behv=>fc-o-disabled
                                                                                                                ELSE  if_abap_behv=>fc-o-enabled
                                                                                                                   )
-                                         %features-%action-rejectTravel = cond #(  WHEN ls_travel-OverallStatus = 'X'
+                                         %features-%action-rejectTravel = COND #(  WHEN ls_travel-OverallStatus = 'X'
                                                                                                                THEN if_abap_behv=>fc-o-disabled
                                                                                                                ELSE  if_abap_behv=>fc-o-enabled
                                                                                                                   )
-                                         %features-%assoc-_Booking      = cond #(  WHEN ls_travel-OverallStatus = 'X'
+                                         %features-%assoc-_Booking      = COND #(  WHEN ls_travel-OverallStatus = 'X'
                                                                                                                THEN if_abap_behv=>fc-o-disabled
                                                                                                                ELSE  if_abap_behv=>fc-o-enabled
                                                                                                                   )
                                         )
                                ).
   ENDMETHOD.
+  METHOD validateCustomer.
+    DATA: lt_cust TYPE SORTED TABLE OF /dmo/customer WITH UNIQUE KEY customer_id.
+
+*..Leer los clientes de las entidades
+    READ ENTITIES OF zi_travel_tech_m_l  IN LOCAL MODE
+                       ENTITY zi_travel_tech_m_l
+      FIELDS ( CustomerId )
+   WITH CORRESPONDING  #(  keys )
+   RESULT DATA(lt_travel).
+
+*..Elimianr duplicados
+    lt_cust = CORRESPONDING #(   lt_travel DISCARDING DUPLICATES MAPPING customer_id = CustomerId ).
+    DELETE  lt_cust WHERE customer_id  IS INITIAL.
+*..Traer los clientes de la BD
+    SELECT
+    FROM /dmo/customer
+    FIELDS customer_id
+    FOR ALL ENTRIES IN @lt_cust
+    WHERE customer_id = @lt_cust-customer_id
+    INTO TABLE @DATA(lt_cust_db).
+
+    IF sy-subrc IS INITIAL.
+      LOOP AT lt_travel ASSIGNING   FIELD-SYMBOL(<ls_travel>).
+
+        IF  <ls_travel>-CustomerId IS INITIAL OR NOT line_exists( lt_cust_db[ customer_id = <ls_travel>-CustomerId ]   ) .
+          APPEND VALUE #(  %tky = <ls_travel>-%tky  ) TO failed-zi_booking_tec_m_l.
+          APPEND VALUE #(  %tky = <ls_travel>-%tky
+                                          %msg = NEW /dmo/cm_flight_messages(
+                                                             textid = /dmo/cm_flight_messages=>customer_unkown
+                                                             customer_id = <ls_travel>-CustomerId
+                                                             severity         =  if_abap_behv_message=>severity-error
+                                          )
+                                          %element-CustomerId =  if_abap_behv=>mk-on
+          ) TO reported-zi_booking_tec_m_l.
+
+        ENDIF.
+      ENDLOOP.
+
+
+
+    ENDIF.
+
+
+  ENDMETHOD.
+
 ENDCLASS.

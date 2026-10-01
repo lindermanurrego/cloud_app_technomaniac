@@ -23,7 +23,7 @@ early numbering
  factory action copyTravel [1];
  //Accion interna la cual es disparada desde un objeto de negocio
  internal action recalcTotProce;
-
+validation validateCustomer on save { create; field CustomerId;}
   mapping for  ztravel_tech_m_l
     {
       TravelId           = travel_id;

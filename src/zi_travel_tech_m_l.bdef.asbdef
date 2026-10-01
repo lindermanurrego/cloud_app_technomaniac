@@ -24,6 +24,13 @@ early numbering
  //Accion interna la cual es disparada desde un objeto de negocio
  internal action recalcTotProce;
 validation validateCustomer on save { create; field CustomerId;}
+validation validateDates on save { create; field BeginDate, EndDate;}
+validation validateStatus on save { create; field OverallStatus;}
+validation validateCurrencyCode on save { create; field CurrencyCode;}
+validation validateBookingFee on save { create; field BookingFee;}
+
+
+
   mapping for  ztravel_tech_m_l
     {
       TravelId           = travel_id;

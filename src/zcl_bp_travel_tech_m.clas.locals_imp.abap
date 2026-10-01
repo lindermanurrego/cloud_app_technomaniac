@@ -21,6 +21,17 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L DEFINITION INHERITING FROM cl_abap_behavior_handler
       keys REQUEST requested_features FOR zi_travel_tech_m_l RESULT result.
     METHODS validatecustomer FOR VALIDATE ON SAVE
        keys FOR zi_travel_tech_m_l~validatecustomer.
+    METHODS validatebookingfee FOR VALIDATE ON SAVE
+      keys FOR zi_travel_tech_m_l~validatebookingfee.
+
+    METHODS validatecurrencycode FOR VALIDATE ON SAVE
+      keys FOR zi_travel_tech_m_l~validatecurrencycode.
+
+    METHODS validatedates FOR VALIDATE ON SAVE
+      keys FOR zi_travel_tech_m_l~validatedates.
+
+    METHODS validatestatus FOR VALIDATE ON SAVE
+      keys FOR zi_travel_tech_m_l~validatestatus.
 
     METHODS earlynumbering_create_bookings FOR NUMBERING
        entities FOR CREATE zi_travel_tech_m_l\_Booking.
@@ -309,35 +320,45 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L IMPLEMENTATION.
     lt_cust = CORRESPONDING #(   lt_travel DISCARDING DUPLICATES MAPPING customer_id = CustomerId ).
     DELETE  lt_cust WHERE customer_id  IS INITIAL.
 *..Traer los clientes de la BD
-    SELECT
-    FROM /dmo/customer
-    FIELDS customer_id
-    FOR ALL ENTRIES IN @lt_cust
-    WHERE customer_id = @lt_cust-customer_id
-    INTO TABLE @DATA(lt_cust_db).
+    IF lt_cust IS NOT INITIAL.
+      SELECT
+      FROM /dmo/customer
+      FIELDS customer_id
+      FOR ALL ENTRIES IN @lt_cust
+      WHERE customer_id = @lt_cust-customer_id
+      INTO TABLE @DATA(lt_cust_db).
 
-    IF sy-subrc IS INITIAL.
-      LOOP AT lt_travel ASSIGNING   FIELD-SYMBOL(<ls_travel>).
+      IF sy-subrc IS INITIAL.
+        LOOP AT lt_travel ASSIGNING   FIELD-SYMBOL(<ls_travel>).
 
-        IF  <ls_travel>-CustomerId IS INITIAL OR NOT line_exists( lt_cust_db[ customer_id = <ls_travel>-CustomerId ]   ) .
-          APPEND VALUE #(  %tky = <ls_travel>-%tky  ) TO failed-zi_booking_tec_m_l.
-          APPEND VALUE #(  %tky = <ls_travel>-%tky
-                                          %msg = NEW /dmo/cm_flight_messages(
-                                                             textid = /dmo/cm_flight_messages=>customer_unkown
-                                                             customer_id = <ls_travel>-CustomerId
-                                                             severity         =  if_abap_behv_message=>severity-error
-                                          )
-                                          %element-CustomerId =  if_abap_behv=>mk-on
-          ) TO reported-zi_booking_tec_m_l.
+          IF  <ls_travel>-CustomerId IS INITIAL OR NOT line_exists( lt_cust_db[ customer_id = <ls_travel>-CustomerId ]   ) .
+            APPEND VALUE #(  %tky = <ls_travel>-%tky  ) TO failed-zi_booking_tec_m_l.
+            APPEND VALUE #(  %tky = <ls_travel>-%tky
+                                            %msg = NEW /dmo/cm_flight_messages(
+                                                               textid = /dmo/cm_flight_messages=>customer_unkown
+                                                               customer_id = <ls_travel>-CustomerId
+                                                               severity         =  if_abap_behv_message=>severity-error
+                                            )
+                                            %element-CustomerId =  if_abap_behv=>mk-on
+            ) TO reported-zi_booking_tec_m_l.
 
-        ENDIF.
-      ENDLOOP.
-
-
-
+          ENDIF.
+        ENDLOOP.
+      ENDIF.
     ENDIF.
 
+  ENDMETHOD.
 
+  METHOD validateBookingFee.
+  ENDMETHOD.
+
+  METHOD validateCurrencyCode.
+  ENDMETHOD.
+
+  METHOD validateDates.
+  ENDMETHOD.
+
+  METHOD validateStatus.
   ENDMETHOD.
 
 ENDCLASS.

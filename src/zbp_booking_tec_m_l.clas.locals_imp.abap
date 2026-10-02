@@ -5,6 +5,20 @@ CLASS lhc_ZI_BOOKING_TEC_M_L DEFINITION INHERITING FROM cl_abap_behavior_handler
        entities FOR CREATE zi_booking_tec_m_l\_Bookingsuppl.
     METHODS get_instance_features FOR INSTANCE FEATURES
       keys REQUEST requested_features FOR zi_booking_tec_m_l RESULT result.
+    METHODS validateconnection FOR VALIDATE ON SAVE
+      keys FOR zi_booking_tec_m_l~validateconnection.
+
+    METHODS validatecurrencycode FOR VALIDATE ON SAVE
+      keys FOR zi_booking_tec_m_l~validatecurrencycode.
+
+    METHODS validatecustomer FOR VALIDATE ON SAVE
+      keys FOR zi_booking_tec_m_l~validatecustomer.
+
+    METHODS validateflightprice FOR VALIDATE ON SAVE
+      keys FOR zi_booking_tec_m_l~validateflightprice.
+
+    METHODS validatestatus FOR VALIDATE ON SAVE
+      keys FOR zi_booking_tec_m_l~validatestatus.
 
 ENDCLASS.
 
@@ -78,6 +92,21 @@ CLASS lhc_ZI_BOOKING_TEC_M_L IMPLEMENTATION.
                                         )
                                ).
 
+  ENDMETHOD.
+
+  METHOD validateConnection.
+  ENDMETHOD.
+
+  METHOD validateCurrencyCode.
+  ENDMETHOD.
+
+  METHOD validateCustomer.
+  ENDMETHOD.
+
+  METHOD validateFlightPrice.
+  ENDMETHOD.
+
+  METHOD validateStatus.
   ENDMETHOD.
 
 ENDCLASS.

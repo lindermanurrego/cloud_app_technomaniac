@@ -22,16 +22,16 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L DEFINITION INHERITING FROM cl_abap_behavior_handler
     METHODS validatecustomer FOR VALIDATE ON SAVE
        keys FOR zi_travel_tech_m_l~validatecustomer.
     METHODS validatebookingfee FOR VALIDATE ON SAVE
-      keys FOR zi_travel_tech_m_l~validatebookingfee.
+       keys FOR zi_travel_tech_m_l~validatebookingfee.
 
     METHODS validatecurrencycode FOR VALIDATE ON SAVE
-      keys FOR zi_travel_tech_m_l~validatecurrencycode.
+       keys FOR zi_travel_tech_m_l~validatecurrencycode.
 
     METHODS validatedates FOR VALIDATE ON SAVE
-      keys FOR zi_travel_tech_m_l~validatedates.
+       keys FOR zi_travel_tech_m_l~validatedates.
 
     METHODS validatestatus FOR VALIDATE ON SAVE
-      keys FOR zi_travel_tech_m_l~validatestatus.
+       keys FOR zi_travel_tech_m_l~validatestatus.
 
     METHODS earlynumbering_create_bookings FOR NUMBERING
        entities FOR CREATE zi_travel_tech_m_l\_Booking.
@@ -356,9 +356,73 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD validateDates.
+    READ ENTITIES OF zi_travel_tech_m_l  IN LOCAL MODE
+      ENTITY zi_travel_tech_m_l
+      FIELDS (  BeginDate  EndDate )
+     WITH CORRESPONDING  #(  keys )
+       RESULT DATA(lt_travels).
+
+
+    LOOP AT lt_travels INTO DATA(ls_travel).
+      IF ls_travel-EndDate < ls_travel-BeginDate .
+        APPEND VALUE #(  %tky = ls_travel-%tky  ) TO failed-zi_booking_tec_m_l.
+        APPEND VALUE #(  %tky = ls_travel-%tky
+                                        %msg = NEW /dmo/cm_flight_messages(
+                                                           textid = /dmo/cm_flight_messages=>begin_date_bef_end_date
+                                                           begin_date = ls_travel-BeginDate
+                                                           end_date    = ls_travel-EndDate
+                                                           severity         =  if_abap_behv_message=>severity-error
+                                        )
+                                        %element-BeginDate =  if_abap_behv=>mk-on
+                                        %element-endDate =  if_abap_behv=>mk-on
+        ) TO reported-zi_travel_tech_m_l.
+      ELSEIF   ls_travel-BeginDate < cl_abap_context_info=>get_system_date( ).
+        APPEND VALUE #(  %tky = ls_travel-%tky  ) TO failed-zi_booking_tec_m_l.
+        APPEND VALUE #(  %tky = ls_travel-%tky
+                                        %msg = NEW /dmo/cm_flight_messages(
+                                                           textid = /dmo/cm_flight_messages=>begin_date_on_or_bef_sysdate
+                                                           begin_date = ls_travel-BeginDate
+                                                           severity         =  if_abap_behv_message=>severity-error
+                                        )
+                                        %element-BeginDate =  if_abap_behv=>mk-on
+        ) TO reported-zi_travel_tech_m_l.
+
+      ENDIF.
+
+    ENDLOOP.
+
+
   ENDMETHOD.
 
   METHOD validateStatus.
+
+    READ ENTITIES OF zi_travel_tech_m_l  IN LOCAL MODE
+      ENTITY zi_travel_tech_m_l
+      FIELDS (  OverallStatus )
+     WITH CORRESPONDING  #(  keys )
+       RESULT DATA(lt_travels).
+
+    LOOP AT lt_travels INTO DATA(ls_travel).
+
+      CASE ls_travel-OverallStatus.
+        WHEN 'O'.
+        WHEN 'X'.
+        WHEN 'A'.
+        WHEN  OTHERS.
+          APPEND VALUE #(  %tky = ls_travel-%tky  ) TO failed-zi_booking_tec_m_l.
+          APPEND VALUE #(  %tky = ls_travel-%tky
+                                          %msg = NEW /dmo/cm_flight_messages(
+                                                             textid = /dmo/cm_flight_messages=>status_invalid
+                                                             status = ls_travel-OverallStatus
+                                                             severity         =  if_abap_behv_message=>severity-error
+                                          )
+                                          %element-OverallStatus =  if_abap_behv=>mk-on
+          ) TO reported-zi_travel_tech_m_l.
+      ENDCASE.
+    ENDLOOP.
+
+
+
   ENDMETHOD.
 
 ENDCLASS.

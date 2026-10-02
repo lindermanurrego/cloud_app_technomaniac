@@ -65,6 +65,12 @@ early numbering
   field ( readonly ) TravelId,BookingId,LastChangedAt ;
   field ( mandatory ) CarrierId,ConnectionId,FlightDate,BookingStatus ;
   field( mandatory : create, readonly : update) BookingDate, CustomerId;
+
+  validation validateStatus on save { create; field BookingStatus;}
+  validation validateCustomer on save { create; field CustomerId;}
+  validation validateCurrencyCode on save { create; field CurrencyCode;}
+  validation validateConnection on save { create; field CarrierId,ConnectionId;}
+  validation validateFlightPrice on save { create; field FlightPrice;}
   association _Travel;
   association _Bookingsuppl { create ( features : instance); }
 
@@ -99,6 +105,9 @@ early numbering
   delete;
   field ( readonly ) TravelId, BookingId,BookingSupplementId, LastChangedAt;
   field ( mandatory )  Price,SupplementId;
+  validation validateCurrencyCode on save { create; field CurrencyCode;}
+  validation validateSupplement on save { create; field SupplementId;}
+  validation validatePrice on save { create; field Price;}
   association _Travel;
   association _Booking;
    mapping for zbooksupp_te_m_l

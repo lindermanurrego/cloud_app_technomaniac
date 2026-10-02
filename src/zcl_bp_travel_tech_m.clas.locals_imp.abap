@@ -353,6 +353,9 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD validateCurrencyCode.
+
+
+
   ENDMETHOD.
 
   METHOD validateDates.

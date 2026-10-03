@@ -12,8 +12,8 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L DEFINITION INHERITING FROM cl_abap_behavior_handler
     METHODS copytravel FOR MODIFY
        keys FOR ACTION zi_travel_tech_m_l~copytravel.
 
-    METHODS recalctotproce FOR MODIFY
-       keys FOR ACTION zi_travel_tech_m_l~recalctotproce.
+    METHODS recalcTotPrice FOR MODIFY
+       keys FOR ACTION zi_travel_tech_m_l~recalcTotPrice.
 
     METHODS rejecttravel FOR MODIFY
        keys FOR ACTION zi_travel_tech_m_l~rejecttravel RESULT result.
@@ -32,6 +32,8 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L DEFINITION INHERITING FROM cl_abap_behavior_handler
 
     METHODS validatestatus FOR VALIDATE ON SAVE
        keys FOR zi_travel_tech_m_l~validatestatus.
+    METHODS calculatetotalprice FOR DETERMINE ON MODIFY
+      keys FOR zi_travel_tech_m_l~calculatetotalprice.
 
     METHODS earlynumbering_create_bookings FOR NUMBERING
        entities FOR CREATE zi_travel_tech_m_l\_Booking.
@@ -256,7 +258,33 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD recalcTotProce.
+  METHOD recalcTotPrice.
+
+   READ ENTITIES OF zi_travel_tech_m_l IN LOCAL MODE
+      ENTITY zi_travel_tech_m_l
+      FIELDS ( BookingFee CurrencyCode )
+      WITH CORRESPONDING #(  keys  )
+      RESULT DATA(lt_travel).
+
+   READ ENTITIES OF zi_travel_tech_m_l IN LOCAL MODE
+      ENTITY zi_travel_tech_m_l BY \_Booking
+      FIELDS ( FlightPrice CurrencyCode )
+      WITH CORRESPONDING #(  lt_travel  )
+      RESULT DATA(lt_ba_booking).
+
+   READ ENTITIES OF zi_travel_tech_m_l  IN LOCAL MODE
+      ENTITY ZI_BOOKING_TEC_M_L BY \_Bookingsuppl
+      FIELDS ( Price CurrencyCode )
+      WITH CORRESPONDING #(  lt_ba_booking  )
+      RESULT DATA(lt_ba_booksuppl).
+
+
+    LOOP AT lt_travel ASSIGNING FIELD-SYMBOL(<ls_travel>).
+
+
+
+    ENDLOOP..
+
   ENDMETHOD.
 
   METHOD rejectTravel.
@@ -426,6 +454,14 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L IMPLEMENTATION.
 
 
 
+  ENDMETHOD.
+
+  METHOD calculateTotalPrice.
+
+      MODIFY ENTITIES OF zi_travel_tech_m_l IN LOCAL MODE
+         ENTITY zi_travel_tech_m_l
+         EXECUTE recalcTotPrice
+         FROM  CORRESPONDING #(  keys ).
   ENDMETHOD.
 
 ENDCLASS.

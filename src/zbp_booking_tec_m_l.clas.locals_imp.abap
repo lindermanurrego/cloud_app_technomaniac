@@ -19,6 +19,8 @@ CLASS lhc_ZI_BOOKING_TEC_M_L DEFINITION INHERITING FROM cl_abap_behavior_handler
 
     METHODS validatestatus FOR VALIDATE ON SAVE
       keys FOR zi_booking_tec_m_l~validatestatus.
+    METHODS calculatetotalprice FOR DETERMINE ON MODIFY
+      keys FOR zi_booking_tec_m_l~calculatetotalprice.
 
 ENDCLASS.
 
@@ -107,6 +109,17 @@ CLASS lhc_ZI_BOOKING_TEC_M_L IMPLEMENTATION.
   ENDMETHOD.
 
   METHOD validateStatus.
+  ENDMETHOD.
+
+  METHOD calculateTotalPrice.
+    DATA: it_travel TYPE STANDARD TABLE OF zi_travel_tech_m_l WITH UNIQUE HASHED KEY KEY COMPONENTS TravelId.
+
+       it_travel = CORRESPONDING #( keys DISCARDING DUPLICATES MAPPING  TravelId = TravelId  ).
+        MODIFY ENTITIES OF zi_travel_tech_m_l IN LOCAL MODE
+         ENTITY zi_travel_tech_m_l
+         EXECUTE recalcTotPrice
+         FROM  CORRESPONDING #(  it_travel ).
+
   ENDMETHOD.
 
 ENDCLASS.

@@ -1,3 +1,18 @@
+CLASS lsc_zi_travel_tech_m_l DEFINITION INHERITING FROM cl_abap_behavior_saver.
+
+  PROTECTED SECTION.
+
+    METHODS save_modified REDEFINITION.
+
+ENDCLASS.
+
+CLASS lsc_zi_travel_tech_m_l IMPLEMENTATION.
+
+  METHOD save_modified.
+  ENDMETHOD.
+
+ENDCLASS.
+
 CLASS lhc_ZI_TRAVEL_TECH_M_L DEFINITION INHERITING FROM cl_abap_behavior_handler.
   PRIVATE SECTION.
 
@@ -291,7 +306,8 @@ CLASS lhc_ZI_TRAVEL_TECH_M_L IMPLEMENTATION.
       lt_total = VALUE #(   ( price = <ls_travel>-BookingFee curr = <ls_travel>-CurrencyCode )   ).
       LOOP AT lt_ba_booking ASSIGNING FIELD-SYMBOL(<ls_booking>)
 *                                                 USING KEY entity
-                                                 WHERE TravelId = <ls_travel>-TravelId.
+                                                 WHERE TravelId = <ls_travel>-TravelId
+                                                    AND CurrencyCode IS NOT INITIAL.
         APPEND VALUE #( price = <ls_booking>-FlightPrice curr = <ls_booking>-CurrencyCode )
            TO lt_total.
         LOOP AT lt_ba_booksuppl ASSIGNING FIELD-SYMBOL(<ls_booksuppl>)

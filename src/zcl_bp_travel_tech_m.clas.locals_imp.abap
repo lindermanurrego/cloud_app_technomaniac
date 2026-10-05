@@ -9,6 +9,59 @@ ENDCLASS.
 CLASS lsc_zi_travel_tech_m_l IMPLEMENTATION.
 
   METHOD save_modified.
+    DATA : lt_travel_log   TYPE STANDARD TABLE OF zlog_travel_m_lu,
+           lt_travel_log_c TYPE STANDARD TABLE OF zlog_travel_m_lu.
+
+    IF create-zi_travel_tech_m_l IS NOT INITIAL.
+
+      lt_travel_log = CORRESPONDING #(   create-zi_travel_tech_m_l  ).
+
+      LOOP AT lt_travel_log ASSIGNING FIELD-SYMBOL(<ls_travel_log>) .
+
+        <ls_travel_log>-changing_operation = 'CREATE'.
+        GET TIME STAMP FIELD <ls_travel_log>-created_at.
+
+        READ TABLE create-zi_travel_tech_m_l ASSIGNING FIELD-SYMBOL(<ls_travel>)
+                                                                         WITH TABLE KEY  entity
+                                                                         COMPONENTS  TravelId = <ls_travel_log>-travelid.
+
+        IF sy-subrc  IS INITIAL.
+          IF <ls_travel>-%control-BookingFee = cl_abap_behv=>flag_changed.
+            <ls_travel_log>-changed_field_name = 'Booking_Fee'.
+            <ls_travel_log>-changed_value         = <ls_travel>-BookingFee.
+            TRY.
+                <ls_travel_log>-change_id                = cl_system_uuid=>create_uuid_x16_static(   ).
+              CATCH cx_uuid_error.
+                "handle exception
+            ENDTRY.
+            APPEND <ls_travel_log> TO lt_travel_log_c.
+          ENDIF.
+
+          IF <ls_travel>-%control-OverallStatus = cl_abap_behv=>flag_changed.
+            <ls_travel_log>-changed_field_name = 'OverallStatus'.
+            <ls_travel_log>-changed_value         = <ls_travel>-OverallStatus.
+            TRY.
+                <ls_travel_log>-change_id                = cl_system_uuid=>create_uuid_x16_static(   ).
+              CATCH cx_uuid_error.
+                "handle exception
+            ENDTRY.
+            APPEND <ls_travel_log> TO lt_travel_log_c.
+          ENDIF.
+        ENDIF.
+      ENDLOOP.
+
+      INSERT zlog_travel_m_lu FROM TABLE @lt_travel_log_c.
+
+    ENDIF.
+
+    IF  update-zi_travel_tech_m_l IS NOT INITIAL.
+
+    ENDIF.
+    IF delete-zi_travel_tech_m_l IS NOT INITIAL.
+
+    ENDIF.
+
+
   ENDMETHOD.
 
 ENDCLASS.

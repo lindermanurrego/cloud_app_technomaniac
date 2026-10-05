@@ -49,19 +49,56 @@ CLASS lsc_zi_travel_tech_m_l IMPLEMENTATION.
           ENDIF.
         ENDIF.
       ENDLOOP.
-
       INSERT zlog_travel_m_lu FROM TABLE @lt_travel_log_c.
-
     ENDIF.
 
     IF  update-zi_travel_tech_m_l IS NOT INITIAL.
+      lt_travel_log = CORRESPONDING #(   create-zi_travel_tech_m_l  ).
 
+      LOOP AT update-zi_travel_tech_m_l ASSIGNING FIELD-SYMBOL(<ls_log_update>) .
+        ASSIGN lt_travel_log[ travelid = <ls_log_update>-TravelId ] TO FIELD-SYMBOL(<ls_log_u>) .
+        <ls_log_u>-changing_operation = 'UPDATE'.
+        GET TIME STAMP FIELD <ls_log_u>-created_at.
+
+        IF <ls_log_update>-%control-CustomerId = if_abap_behv=>mk-on.
+          <ls_log_u>-changed_value =  <ls_log_update>-CustomerId.
+          <ls_log_u>-changed_field_name = 'CustomerId'.
+          TRY.
+              <ls_log_u>-change_id                = cl_system_uuid=>create_uuid_x16_static(   ).
+            CATCH cx_uuid_error.
+              "handle exception
+          ENDTRY.
+          APPEND <ls_log_u> TO lt_travel_log_c.
+        ENDIF.
+
+        IF <ls_log_update>-%control-Description = if_abap_behv=>mk-on.
+          <ls_log_u>-changed_value =  <ls_log_update>-Description.
+          <ls_log_u>-changed_field_name = 'Description'.
+          TRY.
+              <ls_log_u>-change_id                = cl_system_uuid=>create_uuid_x16_static(   ).
+            CATCH cx_uuid_error.
+              "handle exception
+          ENDTRY.
+          APPEND <ls_log_u> TO lt_travel_log_c.
+        ENDIF.
+      ENDLOOP.
+      INSERT zlog_travel_m_lu FROM TABLE @lt_travel_log_c.
     ENDIF.
+
     IF delete-zi_travel_tech_m_l IS NOT INITIAL.
+      lt_travel_log = CORRESPONDING #(   delete-zi_travel_tech_m_l  ).
 
+      LOOP AT lt_travel_log ASSIGNING FIELD-SYMBOL(<ls_travel_del>) .
+        <ls_travel_del>-changing_operation = 'DELETE'.
+        GET TIME STAMP FIELD  <ls_travel_del>-created_at.
+        TRY.
+            <ls_travel_del>-change_id                = cl_system_uuid=>create_uuid_x16_static(   ).
+          CATCH cx_uuid_error.
+            "handle exception
+        ENDTRY.
+        APPEND  <ls_travel_del> TO lt_travel_log_c.
+      ENDLOOP.
     ENDIF.
-
-
   ENDMETHOD.
 
 ENDCLASS.

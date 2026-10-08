@@ -99,6 +99,43 @@ CLASS lsc_zi_travel_tech_m_l IMPLEMENTATION.
         APPEND  <ls_travel_del> TO lt_travel_log_c.
       ENDLOOP.
     ENDIF.
+*-------------Guardar manualmente la entidad booksupplement que se marco como UNMANAGE
+    DATA: lt_book_suppl TYPE STANDARD TABLE OF  zbooksupp_te_m_l.
+
+    IF create-zi_booksupp_te_m_l IS NOT INITIAL.
+      lt_book_suppl = VALUE #( FOR ls_booksup IN  create-zi_booksupp_te_m_l (
+                                           travel_id  = ls_booksup-TravelId
+                                           booking_id = ls_booksup-BookingId
+                                           booking_supplement_id  = ls_booksup-BookingSupplementId
+                                           supplement_id   = ls_booksup-SupplementId
+                                           price   = ls_booksup-Price
+                                           currency_code    = ls_booksup-CurrencyCode
+                                           last_changed_at = ls_booksup-LastChangedAt
+                                             )  ).
+
+      INSERT   zbooksupp_te_m_l  FROM TABLE @lt_book_suppl.
+    ENDIF.
+    IF update-zi_booksupp_te_m_l IS NOT INITIAL.
+      lt_book_suppl = VALUE #( FOR ls_booksup IN  update-zi_booksupp_te_m_l (
+                                        travel_id  = ls_booksup-TravelId
+                                        booking_id = ls_booksup-BookingId
+                                        booking_supplement_id  = ls_booksup-BookingSupplementId
+                                        supplement_id   = ls_booksup-SupplementId
+                                        price   = ls_booksup-Price
+                                        currency_code    = ls_booksup-CurrencyCode
+                                        last_changed_at = ls_booksup-LastChangedAt
+                                          )  ).
+      UPDATE zbooksupp_te_m_l FROM TABLE @lt_book_suppl.
+    ENDIF.
+    IF delete-zi_booksupp_te_m_l IS NOT INITIAL.
+      lt_book_suppl = VALUE #( FOR ls_del IN  delete-zi_booksupp_te_m_l (
+                                         travel_id  = ls_del-TravelId
+                                         booking_id = ls_del-BookingId
+                                         booking_supplement_id  = ls_del-BookingSupplementId
+                                           )  ).
+
+      DELETE zbooksupp_te_m_l FROM TABLE @lt_book_suppl.
+    ENDIF.
   ENDMETHOD.
 
 ENDCLASS.
